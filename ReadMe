@@ -1,0 +1,107 @@
+milter-blockdomain
+
++------------------+
+|   INTRODUCTION   |
++------------------+
+
+The milter-blockdomain is a simple milter written in C to maintain
+thousands of block domains in simple plain expression.
+
+  - Separate configuration file and white/grey/black domain list file.
+  - Domain list file is auto-loaded when it is updated.
+    No restarting is required.
+  - Check FQDN of dns reverse lookup name, helo, envelope from and/or
+    envelope recipient.
+    One domain entry in the domain list is applied to them.
+  - Domain entry is a simple plain expression.
+    No escape character of regular expression is required.
+    Domain is checked exact matching or domain boundary suffix matching,
+    as config settings.
+
+It is a practical use that making use of both the milter-blockdomain and
+the milter-greylist.
+The milter-greylist works for unsolved IP address, malformed HELO/EHLO,
+GeoIP, widely applied rule by regular expression, and/or S25R.
+It is good that the milter-blockdomain handle undesirable domain which is
+allowed by auto-whitelist of the milter-greylist.
+The milter-regex is also useful.
+
+Equivalent block list expression
+
+    milter-blockdomain
+
+        exapmle.com
+
+    milter-greylist
+
+        racl blacklist domain example.com
+        racl blacklist helo /^(.+\.)?exapmle\.com$/
+        racl blacklist from /@(.+\.)?exapmle\.com>$/
+
+    milter-regex
+
+        connect /^(.+\.)?exapmle\.com$/ie // and envrcpt /^<.*>$/
+        helo    /^(.+\.)?exapmle\.com$/ie    and envrcpt /^<.*>$/
+        envfrom /@(.+\.)?exapmle\.com>$/ie   and envrcpt /^<.*>$/
+
++-------------------+
+|   INSTALL FILES   |
++-------------------+
+
+/etc/mail/milter-blockdomain.conf.sample
+/usr/local/sbin/milter-blockdomain
+
++------------------+
+|   INSTALLATION   |
++------------------+
+
+1. Build milter-blockdomain
+
+    ./configure --sysconfdir=/etc/mail
+    make
+    su
+    make install
+
+2. Edit your conf file
+
+    cp /etc/mail/milter-blockdomain.conf.sample /etc/mail/milter-blockdomain.conf
+    vi /etc/mail/milter-blockdomain.conf
+
+3. Create directory for domain lists
+
+    mkdir /var/lib/milter-blockdomain
+
+4. Create directory for socket file
+
+    mkkdir /var/spool/milter
+    chown smmsp:smmsp /var/spool/milter
+    chmod o-rwx /var/spool/milter
+
+5. Add "INPUT_MAIL_FILTER" to sendmail.mc
+
+    INPUT_MAIL_FILTER(`milter-blockdomain',`S=local:/var/spool/milter/milter-blockdomain.sock, F=, T=S:1m;R:1m')dnl
+
+6. Generate sendmail.cf from sendmail.mc
+
+    Save current sendmail.cf as a backup.
+    cp -p /etc/mail/sendmail.cf /etc/mail/sendmail.cf-yyyymmdd-hhmm
+
+    Change working directory
+    cd /usr/share/sendmail/cf/cf
+
+    Generate sendmail.cf from sendmail.mc
+    m4 /etc/mail/sendmail.mc | cat -s > /etc/mail/sendmail.cf
+
++-----------------+
+|   MAINTENANCE   |
++-----------------+
+
+1. Edit
+
+    configure.ac
+        AC_INIT and AC_DEFINE
+
+2. Autotool
+
+    autoreconf --install --force
+
