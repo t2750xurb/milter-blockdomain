@@ -1,0 +1,95 @@
+# milter-blockdomain.conf
+
+########################################
+# user
+# Mandatory, No default
+
+user    smmsp
+
+########################################
+# socket
+# Mandatory, No default
+# Correspond with INPUT_MAIL_FILTER of sendmail.mc
+
+socket  /var/spool/milter/milter-blockdomain.sock
+
+########################################
+# pidFile
+# Mandatory, No default
+
+pidFile /var/run/milter-blockdomain.pid
+
+########################################
+# checkConnect, checkMacro_, checkHelo, checkEnvFrom, checkEnvRcpt
+# 0 : Not checked
+# 1 : Checked  ( Default )
+
+checkConnect = 1
+checkMacro_  = 1
+checkHelo    = 1
+checkEnvFrom = 1
+checkEnvRcpt = 0
+
+########################################
+# checkOnAndAfter
+# 0 : Check on and after connect
+# 1 : Check on and after helo
+# 2 : Check on and after envfrom
+# 3 : Check on and after envrcpt ( Default )
+# 4 : Check on and after header
+
+checkOnAndAfter = 3
+
+########################################
+# Message
+
+messageTempfail "Refused connection temporarily. Be patient."
+messageReject   "Refused connection by site policy."
+
+########################################
+# Syslog facility name
+# daemon, mail, user, local0 to local7
+
+syslogFacility  = mail
+
+########################################
+# Syslog priority debug
+# 0 : Do not write syslog priority=debug ( Default )
+# 1 : Write syslog priority=debug
+
+syslogDebug  = 0
+
+########################################
+# Subdomain
+# 0 : Exact domain matching
+# 1 : Subdomain matching ( Domain boundary )  ( Default )
+
+Subdomain = 1
+
+########################################
+# whitelist, blacklist, greylist
+# Max 8 files
+# First match determine the result, accpet/reject/tempfail.
+# Insensitive lower/upper case letter.
+
+whitelist /var/lib/milter-blockdomain/whitelist.txt
+blacklist /var/lib/milter-blockdomain/blacklist.txt
+greylist  /var/lib/milter-blockdomain/greylist.txt
+
+########################################
+# DO NOT USE THIS PARAMETER
+# testMode
+# 0 : Check ( Default )
+# 1 : Logging only ( Alway "Not listed" result )
+
+#testMode = 0
+
+########################################
+# DO NOT USE THESE PARAMETERS
+# debugConfigFunction, debugCheckFunction
+# 0 : Disable debug log ( Default )
+# 1 : Enable debug log
+
+#debugConfigFunction = 0
+#debugCheckFunction  = 0
+

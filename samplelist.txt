@@ -1,0 +1,6 @@
+# Sample domain list
+
+example.com
+example.org
+example.net
+
